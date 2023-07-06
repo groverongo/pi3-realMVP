@@ -5,8 +5,8 @@ app = Flask(__name__)
 
 insert_query = '''
     INSERT INTO publicaciones
-    (latitude, longitude, aforo, horario_inicio, horario_fin, precio)
-    VALUES (?, ?, ?, ?, ?, ?)
+    (latitude, longitude, aforo, horario_inicio, horario_fin, precio, phone)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
 '''
 
 # Helper function to establish a database connection
@@ -14,6 +14,27 @@ def create_connection():
     connection = sqlite3.connect('espacios.db')
     connection.row_factory = sqlite3.Row
     return connection
+
+def create_table():
+    query = '''
+        CREATE TABLE IF NOT EXISTS publicaciones (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            latitude DECIMAL(9, 6),
+            longitude DECIMAL(9, 6),
+            aforo INTEGER,
+            horario_inicio TIME,
+            horario_fin TIME,
+            precio DECIMAL(8, 2),
+            phone TEXT
+        )
+    '''
+    db = create_connection()
+    db.execute(query)
+    db.commit()
+
+
+create_table()
+
 
 @app.route('/publicaciones', methods=['GET'])
 def get_publicaciones():
@@ -30,7 +51,10 @@ def get_publicaciones():
             "lat": publicacion['latitude'],
             "lng": publicacion['longitude'],
             "precio": publicacion['precio'],
-            "desc": f"""Aforo: {publicacion["aforo"]}\nInicio: {publicacion["horario_inicio"]}\nFin: {publicacion["horario_fin"]}"""
+            "phone": publicacion['phone'],
+            "desc": f"""
+            <p>Aforo: {publicacion["aforo"]}</p><p>Inicio: {publicacion["horario_inicio"]}</p><p>Fin: {publicacion["horario_fin"]}</p>
+            """
         }
         publicaciones.append(publicacion)
 
@@ -44,11 +68,12 @@ def create_post():
     inicio = request.form.get("horario_inicio")
     fin = request.form.get("horario_fin")
     precio = request.form.get("precio")
+    phone = request.form.get("phone")
     
     # Connect to the database
     db = create_connection()
     cursor = db.cursor()
-    cursor.execute(insert_query, (lat, lng, aforo, inicio, fin, precio))
+    cursor.execute(insert_query, (lat, lng, aforo, inicio, fin, precio, phone))
     db.commit()
 
     return redirect("/")

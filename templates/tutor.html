@@ -32,10 +32,14 @@
     
     <h1 style="color: var(--morado-oscuro);"><strong>Detalles del lugar</strong></h1>
     <p id="descripcion"></p>
+    <button class="btn boton" id="btn_reservar" onclick="verNumero()" disabled>Reservar</button>
     
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        
+        function verNumero(){
+            alert("Llamar al sgte número: " +telefono)
+        }
+        var telefono = 0;
         function publicaciones(){
             return fetch("http://localhost:5000/publicaciones").then(r => r.json())
         }
@@ -63,6 +67,9 @@
                     // Perform an action based on the marker index
                         console.log('Marker index: ' + pub.desc);
                         document.getElementById("descripcion").innerHTML = pub.desc;
+                        document.getElementById("btn_reservar").disabled = false;
+                        telefono = pub.phone
+                        console.log(telefono)
                         // Add your custom code here to perform the desired action based on the marker index
                     });
                 })
