@@ -15,7 +15,26 @@ def create_connection():
     connection.row_factory = sqlite3.Row
     return connection
 
-@app.get("get_publicaciones")
+@app.route('/publicaciones', methods=['GET'])
+def get_publicaciones():
+    query = 'SELECT * FROM publicaciones'
+    db = create_connection()
+    cursor = db.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    publicaciones = []
+    for row in rows:
+        publicacion = dict(row)
+        publicacion = {
+            "lat": publicacion['latitude'],
+            "lng": publicacion['longitude'],
+            "precio": publicacion['precio'],
+            "desc": f"""Aforo: {publicacion["aforo"]}\nInicio: {publicacion["horario_inicio"]}\nFin: {publicacion["horario_fin"]}"""
+        }
+        publicaciones.append(publicacion)
+
+    return jsonify(publicaciones)
 
 @app.route('/publicar', methods=['POST'])
 def create_post():

@@ -13,17 +13,32 @@
             font-family:Verdana, Geneva, Tahoma, sans-serif;
             margin: 15px;
         }
+        :root{
+            --morado-oscuro: #210571;
+        }
+        .boton{
+            color: white;
+            background-color: var(--morado-oscuro);
+            margin: 5px;
+        }
 
     </style>
 </head>
 <body>
-    <h1>Búsqueda de espacios</h1>
+    <h1 style="color: var(--morado-oscuro);"><strong>Búsqueda de espacios</strong></h1>
     
     <div id="map"></div><br>
-    <button class="btn " id="addMarkerButton">Buscar</button>
+    <button class="btn boton" id="addMarkerButton">Buscar</button>
+    
+    <h1 style="color: var(--morado-oscuro);"><strong>Detalles del lugar</strong></h1>
+    <p id="descripcion"></p>
     
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
+        
+        function publicaciones(){
+            return fetch("http://localhost:5000/publicaciones").then(r => r.json())
+        }
         // Function to initialize the map
         function initMap(latitude, longitude) {
             var map = L.map('map').setView([latitude, longitude], 25);
@@ -35,11 +50,28 @@
             var marker = L.marker([latitude, longitude]).addTo(map);
             marker.bindPopup("Tú ubicación").openPopup();
 
-            document.getElementById('addMarkerButton').addEventListener('click', function() {
+            document.getElementById('addMarkerButton').addEventListener('click', async function() {
+                var pubs = await publicaciones()
+                console.log(pubs)
+
+                pubs.forEach(function(pub) {
+                    var marker = L.marker([pub.lat, pub.lng])
+                        .bindPopup("S/ "+pub.precio.toString()) // Set autoOpenPopup to true
+                        .addTo(map);
+                    
+                    marker.on('click', function() {
+                    // Perform an action based on the marker index
+                        console.log('Marker index: ' + pub.desc);
+                        document.getElementById("descripcion").innerHTML = pub.desc;
+                        // Add your custom code here to perform the desired action based on the marker index
+                    });
+                })
+
+
                 // var lat = /* Add latitude value */;
                 // var lng = /* Add longitude value */;
                 // addMarker(lat, lng);
-                var markers = [
+                /* var markers = [
                     {lat: latitude+0.0008, lng: longitude-0.0008, title: "$15"},
                     {lat: latitude-0.0008, lng: longitude+0.0008, title: "$20"},
                     {lat: latitude, lng: longitude+2*0.0008, title: "$25"},
@@ -51,7 +83,7 @@
                     L.marker([marker.lat, marker.lng])
                         .bindPopup(marker.title, { autoOpen: true }) // Set autoOpenPopup to true
                         .addTo(map);
-                });
+                }); */
             });
 
             
