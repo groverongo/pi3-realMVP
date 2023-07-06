@@ -81,18 +81,51 @@ def get_users():
             # Convert the result to a list of dictionaries
             users = [{'id': row[0], 'name': row[1], 'email': row[2]} for row in result]
             return jsonify(users)
-    except Error as e:
-        print(f"Error retrieving users: {e}")
+    except:
+        print(f"Error retrieving users:")
         return jsonify({'message': 'Error retrieving users'})
     finally:
         # Close the database connection
         connection.close()
+
+@app.route('/login',methods=['POST'])
+def login():
+    email = request.json.get('email')
+    password = request.json.get('pass')
+
+    if not email or not password:
+        return jsonify({'message': 'email and password are required'})
+
+    # Connect to the database
+    connection = create_connection()
+    if connection is None:
+        return jsonify({'message': 'Error connecting to the database'})
+
+    try:
+        # Execute a query to insert a new user
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT * FROM USERS WHERE email = %s and password = %s', (email, password))
+            connection.commit()
+            result = cursor.fetchall()
+            if(len(result)):
+                return jsonify({'message':'Valid login'}) 
+            else:
+                return jsonify({'message':'Error in login'}) 
+    except Error as e:
+        print(f"Error login user: {e}")
+        return jsonify({'message': 'Error in login'})
+    finally:
+        # Close the database connection
+        connection.close()
+
+
 
 # Define a route to create a new user in the database
 @app.route('/users', methods=['POST'])
 def create_user():
     name = request.json.get('name')
     email = request.json.get('email')
+    password = request.json.get('pass')
 
     if not name or not email:
         return jsonify({'message': 'Name and email are required'})
@@ -105,11 +138,12 @@ def create_user():
     try:
         # Execute a query to insert a new user
         with connection.cursor() as cursor:
-            cursor.execute('INSERT INTO users (name, email) VALUES (%s, %s)', (name, email))
+
+            cursor.execute('INSERT INTO users (name, email, password) VALUES (%s, %s, %s)', (name, email,password))
             connection.commit()
             return jsonify({'message': 'User created successfully'})
-    except Error as e:
-        print(f"Error creating user: {e}")
+    except:
+        print("Error creating user:")
         return jsonify({'message': 'Error creating user'})
     finally:
         # Close the database connection
