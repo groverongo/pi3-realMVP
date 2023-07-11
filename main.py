@@ -4,12 +4,6 @@ import base64
 
 app = Flask(__name__)
 
-insert_query = '''
-    INSERT INTO publicaciones
-    (latitude, longitude, aforo, horario_inicio, horario_fin, precio, phone, usuario, image, direccion)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-'''
-
 # Helper function to establish a database connection
 def create_connection():
     connection = sqlite3.connect('espacios.db')
@@ -45,22 +39,22 @@ def create_table():
     '''
     db.execute(query)
     db.commit()
+    query = '''
+        CREATE TABLE IF NOT EXISTS interesados(  
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario TEXT NOT NULL
+        );
+    '''
+    db.execute(query)
+    db.commit()
     db.close()
 
 
 create_table()
 
-verificar_q = '''
-    SELECT * 
-    FROM usuarios 
-    WHERE usuario = ?;
-'''
-
-nueva_reserva_q = '''
-    INSERT INTO reservas
-    (usuario, publicacion_id)
-    VALUES (?, ?);
-'''
+@app.get("/")
+def landing():
+    return render_template("landing.html")
 
 @app.delete("/eliminarReserva/<nro>")
 def eliminar_reserva(nro):
@@ -79,27 +73,30 @@ def nueva_reserva(nro):
     usuario = request.cookies.get("usuario")
     db = create_connection()
     cursor = db.cursor()
-    cursor.execute(nueva_reserva_q, (usuario, int(nro)))
+    cursor.execute('''
+        INSERT INTO reservas
+        (usuario, publicacion_id)
+        VALUES (?, ?);
+    ''', (usuario, int(nro)))
     db.commit()
     db.close()
     return ""
 
 @app.get("/reservas")
 def ver_reservas():
-    query = """
-    SELECT * 
-    FROM publicaciones
-    WHERE id in (
-        SELECT publicacion_id 
-        FROM reservas 
-        WHERE usuario = ? 
-    );
-    """
     usuario = request.cookies.get("usuario")
     reservas = []
     db = create_connection()
     cursor = db.cursor()
-    cursor.execute(query, (usuario,))
+    cursor.execute("""
+        SELECT * 
+        FROM publicaciones
+        WHERE id in (
+            SELECT publicacion_id 
+            FROM reservas 
+            WHERE usuario = ? 
+        );
+    """, (usuario,))
     rows = cursor.fetchall()
     for row in rows:
         reserva = dict(row)
@@ -109,23 +106,14 @@ def ver_reservas():
     db.close()
     return render_template("reservas.html", data=reservas)
 
-@app.route("/verificar", methods=['POST'])
-def verificar():
-    data = request.get_json()
-    db = create_connection()
-    cursor  = db.cursor()
-    cursor.execute(verificar_q, (data['usuario']))
-    rows = cursor.fetchall()
-    if len(rows) == 0:
-        return "No hallado"
-    return "Hallado"
-
 @app.route('/publicaciones', methods=['GET'])
 def get_publicaciones():
-    query = 'SELECT * FROM publicaciones'
     db = create_connection()
     cursor = db.cursor()
-    cursor.execute(query)
+    cursor.execute('''
+        SELECT * 
+        FROM publicaciones;
+    ''')
     rows = cursor.fetchall()
 
     publicaciones = []
@@ -141,11 +129,24 @@ def eliminar(nro):
     db = create_connection()
     cursor = db.cursor()
     cursor.execute("""
-        DELETE FROM publicaciones WHERE id = ?;
-    """, (nro));
+        DELETE FROM publicaciones 
+        WHERE id = ?;
+    """, (nro,));
     db.commit()
     db.close()
     return "Eliminado"
+
+@app.post("/interes")
+def interes():
+    correo = request.form.get("correo")
+    db = create_connection()
+    cursor = db.cursor()
+    cursor.execute("""
+        INSERT INTO interesados (usuario)
+        VALUES (?);
+    """, (correo,));
+    db.commit()
+    return redirect("/login")
 
 @app.route('/publicar', methods=['POST'])
 def create_post():
@@ -161,12 +162,13 @@ def create_post():
     image = request.files.get('image')
     image_data = image.read()
 
-    
-    print(usuario)
-    # Connect to the database
     db = create_connection()
     cursor = db.cursor()
-    cursor.execute(insert_query, (lat, lng, aforo, inicio, fin, precio, phone, usuario, image_data, direccion))
+    cursor.execute('''
+        INSERT INTO publicaciones
+        (latitude, longitude, aforo, horario_inicio, horario_fin, precio, phone, usuario, image, direccion)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (lat, lng, aforo, inicio, fin, precio, phone, usuario, image_data, direccion))
     db.commit()
     db.close()
 
@@ -176,7 +178,7 @@ def create_post():
 def nueva_publicacion():
     return render_template("anfitrion.html")
 
-@app.get("/")
+@app.get("/login")
 def index():
     return render_template("login.html")
 
@@ -187,10 +189,13 @@ def tutor():
 @app.get("/anfitrion")
 def anfitrion():
     usuario = request.cookies.get("usuario")
-    query = 'SELECT * FROM publicaciones WHERE usuario = ?'
     db = create_connection()
     cursor = db.cursor()
-    cursor.execute(query, (usuario,))
+    cursor.execute("""
+        SELECT * 
+        FROM publicaciones 
+        WHERE usuario = ?;
+    """, (usuario,))
     rows = cursor.fetchall()
     db.close()
 
