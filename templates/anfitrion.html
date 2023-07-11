@@ -29,7 +29,7 @@
     
     <div id="map"></div><br>
 
-    <form method="post" action="/publicar">
+    <form method="post" action="/publicar" enctype="multipart/form-data">
         Coordenadas: 
         <input class="form-control" type="number" name="latitude" id="latitude" step="any" required>
         <input class="form-control" type="number" name="longitude" id="longitude" step="any" required>
@@ -44,12 +44,22 @@
         Número telefónico:
         <input class="form-control" type="tel" name="phone" id="phone" pattern="[0-9]{9}" value="994595554">
 
+        Imagen Referencial:
+        <input class="form-control-file" type="file" name="image" id="image" accept="image/png;base64" required>
 
         <input class="btn boton" type="submit" value="Publicar">
     </form>
     
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
+        function getCookie(cookieName) {
+            let cookie = {};
+            document.cookie.split(';').forEach(function(el) {
+                let [key,value] = el.split('=');
+                cookie[key.trim()] = value;
+            })
+            return cookie[cookieName];
+        }
         // Function to initialize the map
         function initMap(latitude, longitude) {
             var map = L.map('map').setView([latitude, longitude], 25);

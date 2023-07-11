@@ -1,12 +1,13 @@
-from flask import Flask, jsonify, request, render_template, request, redirect
+from flask import Flask, jsonify, request, render_template, request, redirect, make_response
 import sqlite3
+import base64
 
 app = Flask(__name__)
 
 insert_query = '''
     INSERT INTO publicaciones
-    (latitude, longitude, aforo, horario_inicio, horario_fin, precio, phone)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    (latitude, longitude, aforo, horario_inicio, horario_fin, precio, phone, usuario, image)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 '''
 
 # Helper function to establish a database connection
@@ -25,16 +26,43 @@ def create_table():
             horario_inicio TIME,
             horario_fin TIME,
             precio DECIMAL(8, 2),
-            phone TEXT
+            phone TEXT,
+            usuario TEXT,
+            image BLOB
         )
     '''
     db = create_connection()
     db.execute(query)
     db.commit()
+    query = '''
+        CREATE TABLE IF NOT EXISTS reservas(  
+            id INTEGER NOT NULL,
+            usuario TEXT NOT NULL
+        )
+    '''
+    db.execute(query)
+    db.commit()
+    db.close()
 
 
 create_table()
 
+verificar_q = '''
+    SELECT * 
+    FROM usuarios 
+    WHERE usuario = ?;
+'''
+
+@app.route("/verificar", methods=['POST'])
+def verificar():
+    data = request.get_json()
+    db = create_connection()
+    cursor  = db.cursor()
+    cursor.execute(verificar_q, (data['usuario']))
+    rows = cursor.fetchall()
+    if len(rows) == 0:
+        return "No hallado"
+    return "Hallado"
 
 @app.route('/publicaciones', methods=['GET'])
 def get_publicaciones():
@@ -47,18 +75,20 @@ def get_publicaciones():
     publicaciones = []
     for row in rows:
         publicacion = dict(row)
-        publicacion = {
-            "lat": publicacion['latitude'],
-            "lng": publicacion['longitude'],
-            "precio": publicacion['precio'],
-            "phone": publicacion['phone'],
-            "desc": f"""
-            <p>Aforo: {publicacion["aforo"]}</p><p>Inicio: {publicacion["horario_inicio"]}</p><p>Fin: {publicacion["horario_fin"]}</p>
-            """
-        }
+        publicacion['image'] = base64.b64encode(publicacion['image']).decode('utf-8')
         publicaciones.append(publicacion)
 
     return jsonify(publicaciones)
+
+@app.delete("/eliminar/<nro>")
+def eliminar(nro):
+    db = create_connection()
+    cursor = db.cursor()
+    cursor.execute("""
+        DELETE FROM publicaciones WHERE id = ?;
+    """, (nro));
+    db.commit()
+    db.close()
 
 @app.route('/publicar', methods=['POST'])
 def create_post():
@@ -69,14 +99,24 @@ def create_post():
     fin = request.form.get("horario_fin")
     precio = request.form.get("precio")
     phone = request.form.get("phone")
+    usuario = request.cookies.get("usuario")
+    image = request.files.get('image')
+    image_data = image.read()
+
     
+    print(usuario)
     # Connect to the database
     db = create_connection()
     cursor = db.cursor()
-    cursor.execute(insert_query, (lat, lng, aforo, inicio, fin, precio, phone))
+    cursor.execute(insert_query, (lat, lng, aforo, inicio, fin, precio, phone, usuario, image_data))
     db.commit()
+    db.close()
 
     return redirect("/")
+
+@app.route("/nuevapub")
+def nueva_publicacion():
+    return render_template("anfitrion.html")
 
 @app.get("/")
 def index():
@@ -88,91 +128,23 @@ def tutor():
 
 @app.get("/anfitrion")
 def anfitrion():
-    return render_template("anfitrion.html")
+    usuario = request.cookies.get("usuario")
+    query = 'SELECT * FROM publicaciones WHERE usuario = ?'
+    db = create_connection()
+    cursor = db.cursor()
+    cursor.execute(query, (usuario,))
+    rows = cursor.fetchall()
+    db.close()
 
-# Define a route to retrieve data from the database
-@app.route('/users', methods=['GET'])
-def get_users():
-    # Connect to the database
-    connection = create_connection()
-    if connection is None:
-        return jsonify({'message': 'Error connecting to the database'})
+    print(usuario)
 
-    try:
-        # Execute a query to retrieve all users
-        with connection.cursor() as cursor:
-            cursor.execute('SELECT * FROM users')
-            result = cursor.fetchall()
-            # Convert the result to a list of dictionaries
-            users = [{'id': row[0], 'name': row[1], 'email': row[2]} for row in result]
-            return jsonify(users)
-    except:
-        print(f"Error retrieving users:")
-        return jsonify({'message': 'Error retrieving users'})
-    finally:
-        # Close the database connection
-        connection.close()
+    publicaciones = []
+    for row in rows:
+        publicacion = dict(row)
+        publicacion['image'] = base64.b64encode(publicacion['image']).decode('utf-8')
+        publicaciones.append(publicacion)
 
-@app.route('/login',methods=['POST'])
-def login():
-    email = request.json.get('email')
-    password = request.json.get('pass')
-
-    if not email or not password:
-        return jsonify({'message': 'email and password are required'})
-
-    # Connect to the database
-    connection = create_connection()
-    if connection is None:
-        return jsonify({'message': 'Error connecting to the database'})
-
-    try:
-        # Execute a query to insert a new user
-        with connection.cursor() as cursor:
-            cursor.execute('SELECT * FROM USERS WHERE email = %s and password = %s', (email, password))
-            connection.commit()
-            result = cursor.fetchall()
-            if(len(result)):
-                return jsonify({'message':'Valid login'}) 
-            else:
-                return jsonify({'message':'Error in login'}) 
-    except Error as e:
-        print(f"Error login user: {e}")
-        return jsonify({'message': 'Error in login'})
-    finally:
-        # Close the database connection
-        connection.close()
-
-
-
-# Define a route to create a new user in the database
-@app.route('/users', methods=['POST'])
-def create_user():
-    name = request.json.get('name')
-    email = request.json.get('email')
-    password = request.json.get('pass')
-
-    if not name or not email:
-        return jsonify({'message': 'Name and email are required'})
-
-    # Connect to the database
-    connection = create_connection()
-    if connection is None:
-        return jsonify({'message': 'Error connecting to the database'})
-
-    try:
-        # Execute a query to insert a new user
-        with connection.cursor() as cursor:
-
-            cursor.execute('INSERT INTO users (name, email, password) VALUES (%s, %s, %s)', (name, email,password))
-            connection.commit()
-            return jsonify({'message': 'User created successfully'})
-    except:
-        print("Error creating user:")
-        return jsonify({'message': 'Error creating user'})
-    finally:
-        # Close the database connection
-        connection.close()
+    return render_template("espacios.html", data=publicaciones)
 
 # Run the Flask application
 if __name__ == '__main__':
