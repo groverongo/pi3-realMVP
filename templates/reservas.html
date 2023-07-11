@@ -32,7 +32,7 @@
     </style>
 </head>
 <body>
-    <h1 style="color: var(--morado-oscuro);"><strong>Mis Espacios</strong></h1>
+    <h1 style="color: var(--morado-oscuro);"><strong>Mis Reservas</strong></h1>
     {% for pub in data %}
     <div class="d-flex flex-row card">
         <div class="p-2">
@@ -40,23 +40,24 @@
             <p>Aforo: {{ pub.aforo }}</p>
             <p>Hora Inicio: {{ pub.horario_inicio }}</p>
             <p>Hora Fin: {{ pub.horario_fin }}</p>
+            <p>Telefono: {{ pub.phone }}</p>
         </div>
         <div  class="p-2">
             <!-- <img style="height: 90px;" src="data:image/png;base64,{{ pub.image }}" alt="Image"> -->
             <img height="200px" src="data:image/png;base64,{{ pub.image }}" alt="Image">
         </div>
         <div  class="p-2">
-            <button class="btn boton">Ver reservas</button><br>
             <button class="btn boton" onclick="ver_id({{pub.id}})">Eliminar</button>
         </div>
         
     </div>
-  {% endfor %}
-  <a  class="btn boton" href="/nuevapub">Publicar Nuevo Espacio</a>
+    {% endfor %}
+<button class="btn boton">Ver reservas</button><br>
+  <a  class="btn boton" href="/tutor">Hacer nueva reserva</a>
 
     <script>
         function ver_id(id){
-            fetch("/eliminarPublicacion/"+id.toString(), {
+            fetch("/eliminarReserva/"+id.toString(), {
                 method: "DELETE"
             });
             console.log(id);

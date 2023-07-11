@@ -29,6 +29,7 @@
     
     <div id="map"></div><br>
     <button class="btn boton" id="addMarkerButton">Buscar</button>
+    <a class="btn boton" href="/reservas">Ver Reservas</a>
     
     <h1 style="color: var(--morado-oscuro);"><strong>Detalles del lugar</strong></h1>
     <p id="descripcion"></p>
@@ -36,8 +37,26 @@
     
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
+        function getCookie(cookieName) {
+            let cookie = {};
+            document.cookie.split(';').forEach(function(el) {
+                let [key,value] = el.split('=');
+                cookie[key.trim()] = value;
+            })
+            return cookie[cookieName];
+        }
+
+        let seleccion_pub = null;
+
+        let funcion_reservar = (id_publicacion) => {
+            fetch("/nuevareserva/"+id_publicacion.toString(), {
+                method: "POST"
+            })
+        }
+
         function verNumero(){
-            alert("Llamar al sgte número: " +telefono)
+            funcion_reservar(seleccion_pub);
+            alert("Reserva creada. Llamar al siguiente número para mayor coordinación: " +telefono)
         }
         var telefono = 0;
         function publicaciones(){
@@ -46,6 +65,7 @@
 
         function crear_descripcion(pub){
             return `
+                <p>Direccion: ${pub["direccion"]}</p>
                 <p>Aforo: ${pub["aforo"]}</p>
                 <p>Inicio: ${pub["horario_inicio"]}</p>
                 <p>Fin: ${pub["horario_fin"]}</p>
@@ -81,6 +101,7 @@
                         document.getElementById("btn_reservar").disabled = false;
                         telefono = pub.phone
                         console.log(telefono)
+                        seleccion_pub = pub.id
                         // Add your custom code here to perform the desired action based on the marker index
                     });
                 })
