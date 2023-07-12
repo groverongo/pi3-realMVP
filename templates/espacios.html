@@ -61,28 +61,54 @@
         </div>
       </nav>
       <br>
-    {% for pub in data %}
-    <div class="d-flex flex-row card">
-        <div class="p-2">
-            <p>Direccion: {{ pub.direccion }}</p>
-            <p>Aforo: {{ pub.aforo }}</p>
-            <p>Hora Inicio: {{ pub.horario_inicio }}</p>
-            <p>Hora Fin: {{ pub.horario_fin }}</p>
-        </div>
-        <div  class="p-2">
-            <!-- <img style="height: 90px;" src="data:image/png;base64,{{ pub.image }}" alt="Image"> -->
-            <img height="200px" src="data:image/png;base64,{{ pub.image }}" alt="Image">
-        </div>
-        <div  class="p-2">
-            <button class="btn boton">Ver reservas</button><br>
-            <button class="btn boton" onclick="ver_id({{pub.id}})">Eliminar</button>
-        </div>
+
         
+    <div style="display: flex;">
+    <div>
+        {% for pub in data %}
+        <div class="d-flex flex-row card">
+            <div class="p-2">
+                <p>Direccion: {{ pub.direccion }}</p>
+                <p>Aforo: {{ pub.aforo }}</p>
+                <p>Hora Inicio: {{ pub.horario_inicio }}</p>
+                <p>Hora Fin: {{ pub.horario_fin }}</p>
+            </div>
+            <div  class="p-2">
+                <!-- <img style="height: 90px;" src="data:image/png;base64,{{ pub.image }}" alt="Image"> -->
+                <img height="200px" src="data:image/png;base64,{{ pub.image }}" alt="Image">
+            </div>
+            <div  class="p-2">
+                <button class="btn boton" onclick="detallar({{pub.id}})">Ver reservas</button><br>
+                <button class="btn boton" onclick="ver_id({{pub.id}})">Eliminar</button>
+            </div>
+            
+        </div>
+        {% endfor %}
     </div>
-  {% endfor %}
+    <div style="margin-left: 5%;">
+        <h1>Solicitudes</h1>
+        <div id="detalles"></div>
+    </div>
+    </div>
   <!-- <a  class="btn boton" href="/nuevapub">Publicar Nuevo Espacio</a> -->
 
     <script>
+
+        function detallar(id){
+            fetch("/interesados/"+id.toString()).then( r => r.json() )
+            .then( rjson => {
+                console.log(rjson)
+                let cadena = '<ul>'
+                    for(let i = 0; i<rjson.length;  i++){
+                        cadena += `<li>${rjson[i].usuario}</li>`
+                    }
+                    cadena += '</ul>'
+                if(rjson.length == 0)
+                    cadena = '<p>No hay interesados en este espacio</p>'
+                document.getElementById('detalles').innerHTML = cadena
+            })
+        }
+
         function ver_id(id){
             fetch("/eliminarPublicacion/"+id.toString(), {
                 method: "DELETE"

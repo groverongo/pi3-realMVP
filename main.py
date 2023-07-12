@@ -136,6 +136,26 @@ def eliminar(nro):
     db.close()
     return "Eliminado"
 
+@app.get("/interesados/<nro>")
+def interesados(nro):
+    db = create_connection()
+    cursor = db.cursor()
+    cursor.execute('''
+        SELECT usuario 
+        FROM reservas
+        WHERE publicacion_id = ?;
+    ''', (nro, ))
+    rows = cursor.fetchall()
+
+    publicaciones = []
+    for row in rows:
+        publicacion = dict(row)
+        publicaciones.append(publicacion)
+
+    print(publicaciones)
+
+    return jsonify(publicaciones)
+
 @app.post("/interes")
 def interes():
     correo = request.form.get("correo")
