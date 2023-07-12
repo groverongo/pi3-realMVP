@@ -7,7 +7,7 @@
     <style>
         #map {
             height: 400px;
-            width: 45%;
+            width: 95%;
         }
         body{
             font-family:Verdana, Geneva, Tahoma, sans-serif;
@@ -54,12 +54,18 @@
       </nav>
       <br>
     
-    <div id="map"></div><br>
-    <button class="btn boton" id="addMarkerButton">Buscar</button>
-      
-    <h1 style="color: var(--morado-oscuro);"><strong>Detalles del lugar</strong></h1>
-    <p id="descripcion"></p>
-    <button class="btn boton" id="btn_reservar" onclick="verNumero()" disabled>Reservar</button>
+    <div style="display: flex;">
+        <div style="width: 50%;">
+            <div id="map"></div><br>
+            <button class="btn boton" id="addMarkerButton">Buscar</button>
+        </div>
+        
+        <div>
+            <h3 style="color: var(--morado-oscuro);"><strong>Detalles del lugar</strong></h3>
+            <p id="descripcion"></p>
+            <button class="btn boton" id="btn_reservar" onclick="verNumero()" disabled>Reservar</button>
+        </div>
+    </div>
     
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>

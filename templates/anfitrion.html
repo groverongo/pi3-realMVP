@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Espaciapp Tutor</title>
+    <title>Espaciapp Anfitrion</title>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
     <style>
         #map {
             height: 400px;
-            width: 100%;
+            width: 95%;
         }
         body{
             font-family:Verdana, Geneva, Tahoma, sans-serif;
@@ -22,35 +23,70 @@
             background-color: var(--morado-oscuro);
             margin: 5px;
         }
+        .nav-elem{
+            font-size: larger; 
+            background-color: #210571;
+            color: white;
+            border-radius: 8%;
+        }
     </style>
 </head>
 <body>
-    <h1 style="color: var(--morado-oscuro);"><strong>Publicar Espacio</strong></h1>
+    <!-- <h1 style="color: var(--morado-oscuro);"><strong>Publicar Espacio</strong></h1> -->
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgb(203, 167, 237);">
+        <span class="navbar-brand mb-0 h1" style="font-size: xx-large; color: #210571;"><strong>Espaciapp - Anfitrion</strong></span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div  class="collapse navbar-collapse"  id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto" style="gap: 10px;">
+            <li class="nav-item active">
+              <a class="nav-link nav-elem" style="font-size: larger; color: white;" href="/anfitrion"> Mis Espacios </a>
+            </li>
+            
+            <li class="nav-item">
+              <a class="nav-link nav-elem" style=" font-size: larger; color: white;" href="/nuevapub"><strong>Publicar</strong></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link nav-elem" style=" font-size: larger; color: white;" href="/login">Cerrar Sesión</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <br>
     
-    <div id="map"></div><br>
+    
+    <div style="display: flex;">
+        <div style="width: 50%;">
+            <div id="map"></div>
+        </div>
 
-    <form method="post" action="/publicar" enctype="multipart/form-data">
-        Coordenadas: 
-        <input class="form-control" type="number" name="latitude" id="latitude" step="any" required>
-        <input class="form-control" type="number" name="longitude" id="longitude" step="any" required>
-        Direccion:
-        <input class="form-control" type="text" name="direccion" id="direccion" required>
-        Aforo:
-        <input class="form-control" type="number" name="aforo" id="aforo" value="5">
-        Horario inicio:
-        <input class="form-control" type="time" name="horario_inicio" id="horario_inicio" value="09:00">
-        Horario fin:
-        <input class="form-control" type="time" name="horario_fin" id="horario_fin" value="19:00">
-        Precio:
-        <input class="form-control" type="number" name="precio" id="precio" value="15">
-        Número telefónico:
-        <input class="form-control" type="tel" name="phone" id="phone" pattern="[0-9]{9}" value="994595554">
+        <div>
+            <form method="post" action="/publicar" enctype="multipart/form-data">
+            Coordenadas: 
+            <input class="form-control" type="number" name="latitude" id="latitude" step="any" required>
+            <input class="form-control" type="number" name="longitude" id="longitude" step="any" required>
+            Direccion:
+            <input class="form-control" type="text" name="direccion" id="direccion" required>
+            Aforo:
+            <input class="form-control" type="number" name="aforo" id="aforo" value="5">
+            Horario inicio:
+            <input class="form-control" type="time" name="horario_inicio" id="horario_inicio" value="09:00">
+            Horario fin:
+            <input class="form-control" type="time" name="horario_fin" id="horario_fin" value="19:00">
+            Precio:
+            <input class="form-control" type="number" name="precio" id="precio" value="15">
+            Número telefónico:
+            <input class="form-control" type="tel" name="phone" id="phone" pattern="[0-9]{9}" value="994595554">
 
-        Imagen Referencial:
-        <input class="form-control-file" type="file" name="image" id="image" accept="image/png;base64" required>
+            Imagen Referencial:
+            <input class="form-control-file" type="file" name="image" id="image" accept="image/png;base64" required>
 
-        <input class="btn boton" type="submit" value="Publicar">
-    </form>
+            <input class="btn boton" type="submit" value="Publicar">
+            </form>
+        </div>
+    </div>
     
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>

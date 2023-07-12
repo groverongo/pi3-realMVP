@@ -28,11 +28,39 @@
         padding: 10px;
         margin-bottom: 10px;
         }
+        .nav-elem{
+            font-size: larger; 
+            background-color: #210571;
+            color: white;
+            border-radius: 8%;
+        }
 
     </style>
 </head>
 <body>
-    <h1 style="color: var(--morado-oscuro);"><strong>Mis Reservas</strong></h1>
+    <!-- <h1 style="color: var(--morado-oscuro);"><strong>Mis Reservas</strong></h1> -->
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgb(203, 167, 237);">
+        <span class="navbar-brand mb-0 h1" style="font-size: xx-large; color: #210571;"><strong>Espaciapp - Tutor</strong></span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div  class="collapse navbar-collapse"  id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto" style="gap: 10px;">
+            <li class="nav-item active">
+              <a class="nav-link nav-elem" style="font-size: larger; color: white;" href="/tutor"> Búsqueda </a>
+            </li>
+            
+            <li class="nav-item">
+              <a class="nav-link nav-elem" style=" font-size: larger; color: white;" href="/reservas"><strong>Mis Reservas</strong></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link nav-elem" style=" font-size: larger; color: white;" href="/login">Cerrar Sesión</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <br>
     {% for pub in data %}
     <div class="d-flex flex-row card">
         <div class="p-2">
@@ -52,8 +80,8 @@
         
     </div>
     {% endfor %}
-<button class="btn boton">Ver reservas</button><br>
-  <a  class="btn boton" href="/tutor">Hacer nueva reserva</a>
+<!-- <button class="btn boton">Ver reservas</button><br> -->
+  <!-- <a  class="btn boton" href="/tutor">Hacer nueva reserva</a> -->
 
     <script>
         function ver_id(id){
