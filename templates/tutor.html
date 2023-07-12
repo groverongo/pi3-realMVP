@@ -7,7 +7,7 @@
     <style>
         #map {
             height: 400px;
-            width: 100%;
+            width: 45%;
         }
         body{
             font-family:Verdana, Geneva, Tahoma, sans-serif;
@@ -21,16 +21,42 @@
             background-color: var(--morado-oscuro);
             margin: 5px;
         }
-
+        .nav-elem{
+            font-size: larger; 
+            background-color: #210571;
+            color: white;
+            border-radius: 8%;
+        }
     </style>
 </head>
 <body>
-    <h1 style="color: var(--morado-oscuro);"><strong>Búsqueda de espacios</strong></h1>
+    <!-- <h1 style="color: var(--morado-oscuro);"><strong>Búsqueda de espacios</strong></h1> -->
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgb(203, 167, 237);">
+        <span class="navbar-brand mb-0 h1" style="font-size: xx-large; color: #210571;"><strong>Espaciapp - Tutor</strong></span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div  class="collapse navbar-collapse"  id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto" style="gap: 10px;">
+            <li class="nav-item active">
+              <a class="nav-link nav-elem" style="font-size: larger; color: white;" href="/tutor"> <strong>Búsqueda</strong> </a>
+            </li>
+            
+            <li class="nav-item">
+              <a class="nav-link nav-elem" style=" font-size: larger; color: white;" href="/reservas">Mis Reservas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link nav-elem" style=" font-size: larger; color: white;" href="/login">Cerrar Sesión</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <br>
     
     <div id="map"></div><br>
     <button class="btn boton" id="addMarkerButton">Buscar</button>
-    <a class="btn boton" href="/reservas">Ver Reservas</a>
-    
+      
     <h1 style="color: var(--morado-oscuro);"><strong>Detalles del lugar</strong></h1>
     <p id="descripcion"></p>
     <button class="btn boton" id="btn_reservar" onclick="verNumero()" disabled>Reservar</button>
